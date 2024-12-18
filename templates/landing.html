@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Prevention</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+    <!-- Decorative Elements -->
+    <div class="decorative-element" id="branch1"></div>
+    <div class="decorative-element" id="branch2"></div>
+    <div class="decorative-element" id="branch3"></div>
+
+    <!-- Fixed Position Leaves -->
+    <div class="fixed-leaf leaf1" style="top: 15%; right: 10%;"></div>
+    <div class="fixed-leaf leaf2" style="top: 35%; left: 5%;"></div>
+    <div class="fixed-leaf leaf3" style="bottom: 25%; right: 15%;"></div>
+    <div class="fixed-leaf leaf4" style="top: 60%; left: 8%;"></div>
+    <div class="fixed-leaf leaf5" style="bottom: 15%; left: 20%;"></div>
+    <div class="fixed-leaf leaf6" style="top: 40%; right: 5%;"></div>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/fire-icon.svg') }}" alt="Fire Icon">
+                <span>Forest Fire<br>Prevention</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>DEFEND WITH PRIDE<br><span>FOREST FIRE HIDE</span></h1>
+            <p>BE WISE, DON'T COMPROMISE ON FIRE</p>
+            <button class="predict-btn" onclick="showModeSelection()">Let's Save</button>
+        </div>
+    </section>
+
+    <!-- Mode Selection Modal -->
+    <div class="mode-selection" id="modeSelection">
+        <div class="mode-content">
+            <h2>Choose Mode</h2>
+            <div class="mode-options">
+                <a href="/predict" class="mode-option predict">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Predict Fire Risk</h3>
+                    <p>Analyze and predict forest fire risks based on weather conditions</p>
+                </a>
+                <a href="/live" class="mode-option live">
+                    <i class="fas fa-fire"></i>
+                    <h3>Live Fire Map</h3>
+                    <p>View real-time forest fire data from NASA FIRMS</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>

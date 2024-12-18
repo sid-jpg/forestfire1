@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="input-section">
+            <h2>Forest Fire Risk Prediction</h2>
+            <div class="coordinate-form">
+                <div class="input-group">
+                    <input type="number" id="latitude" placeholder="Latitude" step="any" required>
+                    <input type="number" id="longitude" placeholder="Longitude" step="any" required>
+                </div>
+                <button id="predictBtn" class="predict-btn">
+                    <i class="fas fa-fire"></i> Predict Risk
+                </button>
+            </div>
+        </div>
+
+        <!-- Prediction Panel (Initially Hidden) -->
+        <div class="prediction-panel" id="predictionPanel">
+            <div class="panel-title">
+                <i class="fas fa-chart-line"></i>
+                <span>Prediction Results</span>
+            </div>
+
+            <div class="risk-indicator">
+                <h3>Fire Risk Level</h3>
+                <div class="risk-container">
+                    <div class="risk-bar">
+                        <div class="progress" id="riskProgress"></div>
+                    </div>
+                    <div class="risk-level" id="riskLevel">Calculating...</div>
+                    <div class="risk-probability" id="riskProbability"></div>
+                </div>
+            </div>
+
+            <div class="model-section">
+                <h3><i class="fas fa-thermometer-half"></i> Weather Parameters</h3>
+                <div class="cards-grid">
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <span class="card-title">Temperature</span>
+                            <span class="card-value" id="temperature">-</span>
+                            <span class="card-unit">°C</span>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <span class="card-title">Humidity</span>
+                            <span class="card-value" id="humidity">-</span>
+                            <span class="card-unit">%</span>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <span class="card-title">Wind Speed</span>
+                            <span class="card-value" id="windSpeed">-</span>
+                            <span class="card-unit">m/s</span>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <span class="card-title">Rainfall</span>
+                            <span class="card-value" id="rainfall">-</span>
+                            <span class="card-unit">mm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="new-prediction-btn" id="newPredictionBtn">
+                <i class="fas fa-sync-alt"></i> New Prediction
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Animation -->
+    <div class="fire-loading" id="loadingAnimation">
+        <div class="loading-content">
+            <div class="loading-animation">
+                <i class="fas fa-fire"></i>
+            </div>
+            <p class="loading-text">Calculating Fire Risk...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictionPanel = document.getElementById('predictionPanel');
+            const predictBtn = document.getElementById('predictBtn');
+            const newPredictionBtn = document.getElementById('newPredictionBtn');
+            const loadingAnimation = document.getElementById('loadingAnimation');
+            const riskProgress = document.getElementById('riskProgress');
+            const riskLevel = document.getElementById('riskLevel');
+            const riskProbability = document.getElementById('riskProbability');
+
+            // Function to show loading animation
+            function showLoading() {
+                loadingAnimation.style.display = 'flex';
+            }
+
+            // Function to hide loading animation
+            function hideLoading() {
+                loadingAnimation.style.display = 'none';
+            }
+
+            // Function to make prediction
+            async function makePrediction() {
+                const latitude = document.getElementById('latitude').value;
+                const longitude = document.getElementById('longitude').value;
+
+                if (!latitude || !longitude) {
+                    alert('Please enter both latitude and longitude');
+                    return;
+                }
+
+                showLoading();
+
+                try {
+                    const response = await fetch('/predict_new', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            lat: parseFloat(latitude),
+                            lon: parseFloat(longitude)
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update the prediction panel
+                        document.getElementById('temperature').textContent = data.weather.temperature;
+                        document.getElementById('humidity').textContent = data.weather.humidity;
+                        document.getElementById('windSpeed').textContent = data.weather.wind_speed;
+                        document.getElementById('rainfall').textContent = data.weather.rain;
+
+                        // Update risk level and progress bar
+                        riskLevel.textContent = data.risk_level;
+                        riskProbability.textContent = `${data.probability}% Probability`;
+
+                        // Update progress bar class and width
+                        riskProgress.className = 'progress';
+                        switch(data.risk_level) {
+                            case 'Low Risk':
+                                riskProgress.classList.add('risk-low');
+                                riskProgress.style.width = '25%';
+                                break;
+                            case 'Moderate Risk':
+                                riskProgress.classList.add('risk-moderate');
+                                riskProgress.style.width = '50%';
+                                break;
+                            case 'High Risk':
+                                riskProgress.classList.add('risk-high');
+                                riskProgress.style.width = '75%';
+                                break;
+                            case 'Extreme Risk':
+                                riskProgress.classList.add('risk-extreme');
+                                riskProgress.style.width = '100%';
+                                break;
+                        }
+
+                        // Show the prediction panel with animation
+                        predictionPanel.classList.add('active');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while making the prediction');
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            // Predict button click handler
+            predictBtn.addEventListener('click', makePrediction);
+
+            // New Prediction button click handler
+            newPredictionBtn.addEventListener('click', function() {
+                // Reset form
+                document.getElementById('latitude').value = '';
+                document.getElementById('longitude').value = '';
+                
+                // Hide prediction panel
+                predictionPanel.classList.remove('active');
+                
+                // Reset progress bar
+                riskProgress.style.width = '0';
+                riskProgress.className = 'progress';
+                
+                // Reset values
+                riskLevel.textContent = 'Calculating...';
+                riskProbability.textContent = '';
+                document.getElementById('temperature').textContent = '-';
+                document.getElementById('humidity').textContent = '-';
+                document.getElementById('windSpeed').textContent = '-';
+                document.getElementById('rainfall').textContent = '-';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+do the following steps for us on this project:
+1. if the location points to sea, ocean or any water body, then it should show a message showing "water body detected" with appropriate message. 
+2. if the location points to any city, dessert, building or any landsacpes where there are no forests or many trees, then display appropriate message.
+3. in step 1 & 2, do not show the probability of fire risk
+4. in the probability risk panel, also show the name of city on which it is being calculated
+5. develop a flutter app which uses this website or this mechanism and an alert can be sent to the mobile throught that app regarding the fire risk, a pop up notification.
+6. figure out how to connect the app and this website, like a centralised system
+7. make the app with attractive and interactive UI.
+8. and an admin panel whhich will be used to mount what kind of model, and changing the model, pushing high alert messages etc
+8. also help me in deploying this website in vercel
+9. use the free resources only

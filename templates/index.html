@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Fire Prediction</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - Roboto Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <div class="coordinate-control">
+            <div class="input-group">
+                <input type="number" id="latitude" class="form-control" placeholder="Latitude" step="any" readonly>
+                <input type="number" id="longitude" class="form-control" placeholder="Longitude" step="any" readonly>
+                <button class="btn btn-success" id="predictBtn">
+                    <i class="fas fa-search"></i> Predict
+                </button>
+            </div>
+        </div>
+        
+        <div class="prediction-panel">
+            <h2 class="panel-title"><i class="fas fa-fire"></i> Fire Risk Analysis</h2>
+            
+            <div class="risk-indicator">
+                <h3>Fire Risk Level</h3>
+                <div class="risk-container">
+                    <div class="risk-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="risk-level">--</div>
+                    <div class="risk-probability">Risk Probability: <span class="risk-prob-value">--%</span></div>
+                </div>
+            </div>
+
+            <!-- Temperature Model Parameters -->
+            <div class="model-section">
+                <h3><i class="fas fa-thermometer-half"></i> Weather Parameters</h3>
+                <div class="cards-grid">
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <div class="card-title">Temperature</div>
+                            <div class="card-value temp-value">--</div>
+                            <div class="card-unit">°C</div>
+                            <div class="tooltip-text">Current air temperature at the selected location</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <div class="card-title">Humidity</div>
+                            <div class="card-value humidity-value">--</div>
+                            <div class="card-unit">%</div>
+                            <div class="tooltip-text">Relative humidity - Amount of water vapor in the air</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <div class="card-title">Wind Speed</div>
+                            <div class="card-value wind-value">--</div>
+                            <div class="card-unit">m/s</div>
+                            <div class="tooltip-text">Current wind speed measured in meters per second</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card">
+                        <div class="card-content">
+                            <div class="card-title">Rainfall</div>
+                            <div class="card-value rain-value">--</div>
+                            <div class="card-unit">mm</div>
+                            <div class="tooltip-text">Precipitation amount in the last hour</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fire Weather Indices -->
+            <div class="model-section fire-indices-section">
+                <h3><i class="fas fa-fire-alt"></i> Fire Weather Indices</h3>
+                <div class="cards-grid">
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">FFMC</div>
+                            <div class="card-value ffmc-value">--</div>
+                            <div class="tooltip-text">Fine Fuel Moisture Code - Indicates the ease of ignition and flammability of fine fuels</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">DMC</div>
+                            <div class="card-value dmc-value">--</div>
+                            <div class="tooltip-text">Duff Moisture Code - Represents moisture content of loosely compacted organic layers</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">DC</div>
+                            <div class="card-value dc-value">--</div>
+                            <div class="tooltip-text">Drought Code - Indicates moisture content of deep compact organic layers</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">ISI</div>
+                            <div class="card-value isi-value">--</div>
+                            <div class="tooltip-text">Initial Spread Index - Represents the expected rate of fire spread</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">BUI</div>
+                            <div class="card-value bui-value">--</div>
+                            <div class="tooltip-text">Buildup Index - Indicates the total amount of fuel available for combustion</div>
+                        </div>
+                    </div>
+                    <div class="parameter-card fire-index-card">
+                        <div class="card-content">
+                            <div class="card-title">FWI</div>
+                            <div class="card-value fwi-value">--</div>
+                            <div class="tooltip-text">Fire Weather Index - General index of fire danger</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    <div class="fire-loading">
+        <div class="loading-content">
+            <div class="loading-animation">
+                <i class="fas fa-fire fa-beat"></i>
+            </div>
+            <p class="loading-text">Analyzing fire risk...</p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>
